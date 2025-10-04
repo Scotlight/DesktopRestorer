@@ -38,6 +38,9 @@ private NotifyIcon? _notifyIcon;
 
         InitializeApp();
         InitializeTrayIcon();
+        
+        // 检查是否通过自启动参数启动
+        CheckAutoRunParameter();
     }
 
     private void InitializeApp()
@@ -805,7 +808,7 @@ private NotifyIcon? _notifyIcon;
                         return;
                     }
                     key.SetValue(AppName, $"\"{appPath}\" /autorun");
-                    LogMessage("已设置开机自启动");
+                    LogMessage("已设置开机自启动并自动恢复桌面");
                 }
                 else
                 {
@@ -836,6 +839,34 @@ private NotifyIcon? _notifyIcon;
         catch (Exception ex)
         {
             LogMessage($"检查自启动状态失败：{ex.Message}");
+        }
+    }
+    
+    private void CheckAutoRunParameter()
+    {
+        try
+        {
+            // 检查命令行参数
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Length > 1 && args.Any(arg => arg.Equals("/autorun", StringComparison.OrdinalIgnoreCase)))
+            {
+                LogMessage("通过自启动参数启动，自动执行桌面恢复");
+                
+                // 确保有源文件夹
+                if (!string.IsNullOrEmpty(_sourceFolder) && Directory.Exists(_sourceFolder))
+                {
+                    // 自动执行桌面恢复
+                    _ = RestoreDesktopAsync();
+                }
+                else
+                {
+                    LogMessage("自动恢复失败：源文件夹未设置或不存在");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            LogMessage($"检查自启动参数失败：{ex.Message}");
         }
     }
 
