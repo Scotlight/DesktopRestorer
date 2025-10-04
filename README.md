@@ -10,6 +10,15 @@ DesktopRestorer 是一个简单实用的桌面备份和恢复工具，帮助您�
 - 系统托盘支持，最小化不打扰
 - 简洁直观的用户界面
 
+## 界面预览
+
+| 中文 | English |
+| ----- | ------- |
+| 下图展示了 DesktopRestorer 的主界面。您可以在其中设置源文件夹（文件夹 A）、目标文件夹（桌面）、启动选项以及自动备份间隔等。下方的操作按钮用于立即备份与恢复桌面，底部的日志框会实时显示应用操作记录。 | The following screenshot shows the main UI of DesktopRestorer. You can configure the source folder (Folder A), target folder (Desktop), startup options, and automatic backup interval. The buttons below trigger immediate backup or desktop restore, and the log box at the bottom displays real-time operation logs. |
+
+
+![DesktopRestorer UI](docs/screenshot.png)
+
 ## 安装说明
 
 ### 方法一：直接运行可执行文件
@@ -46,17 +55,7 @@ DesktopRestorer 是一个简单实用的桌面备份和恢复工具，帮助您�
 - 双击托盘图标恢复窗口
 - 右键托盘图标可选择打开程序或退出
 
-## 界面预览
 
-| 中文 | English |
-| ----- | ------- |
-| 下图展示了 DesktopRestorer 的主界面。您可以在其中设置源文件夹（文件夹 A）、目标文件夹（桌面）、启动选项以及自动备份间隔等。下方的操作按钮用于立即备份与恢复桌面，底部的日志框会实时显示应用操作记录。 | The following screenshot shows the main UI of DesktopRestorer. You can configure the source folder (Folder A), target folder (Desktop), startup options, and automatic backup interval. The buttons below trigger immediate backup or desktop restore, and the log box at the bottom displays real-time operation logs. |
-
-> **提示 Tip** : 请将截图文件保存为 `docs/screenshot.png`（或其他路径）并更新下方引用。
->
-> Please save the screenshot image to `docs/screenshot.png` (or another path) and update the reference below.
-
-![DesktopRestorer UI](docs/screenshot.png)
 
 ## 系统要求
 
