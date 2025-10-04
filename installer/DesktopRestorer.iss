@@ -9,13 +9,13 @@ OutputDir=Output
 OutputBaseFilename=DesktopRestorerSetup
 Compression=lzma
 SolidCompression=yes
-SetupIconFile=D:\0010\else\shutdown\DesktopRestorer\p578a-xndte-001.ico
+SetupIconFile=D:\0010\else\shutdown\p578a-xndte-001.ico
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\0010\else\shutdown\DesktopRestorer\bin\Release\net8.0-windows\win-x64\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\0010\else\shutdown\bin\Release\net8.0-windows\win-x64\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\DesktopRestorer"; Filename: "{app}\DesktopRestorer.exe"
