@@ -1,0 +1,48 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/[Dd]ebug/
+**/[Rr]elease/
+**/publish/
+
+# Inno Setup outputs
+**/Output/
+DesktopRestorerSetup.exe
+
+# Archives & installers
+**/*.zip
+**/*.7z
+**/*.rar
+**/*.msi
+**/*.cab
+
+# NuGet (legacy packages folder)
+**/packages/
+
+# IDE & user-specific
+*.user
+*.suo
+*.userprefs
+*.rsuser
+*.DotSettings.user
+.idea/
+.vs/
+
+# Logs & temp
+*.log
+*.tmp
+*.cache
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# WPF temporary
+**/*_wpftmp*
+
+# Keep project configs and docs tracked
+#! .vscode/
+#! README.md
+#! LICENSE
+#! DesktopRestorer.iss
