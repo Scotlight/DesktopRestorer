@@ -575,7 +575,7 @@ private NotifyIcon? _notifyIcon;
     {
         if (_isBackingUp) return; // 避免备份和还原并行
 
-        string sourcePath = SourceFolderTextBox.Text;
+        string sourcePath = _sourceFolder;
         if (string.IsNullOrEmpty(sourcePath) || !Directory.Exists(sourcePath))
         {
             LogMessage("错误：源文件夹不存在或未设置");
@@ -629,22 +629,44 @@ private NotifyIcon? _notifyIcon;
             // 删除文件
             foreach (FileInfo file in desktopDir.GetFiles())
             {
-                // 跳过系统文件和快捷方式
-                if (!IsSystemFile(file.FullName))
+                try
                 {
-                    file.Delete();
-                    LogMessage($"已删除文件：{file.Name}");
+                    // 跳过系统文件和快捷方式
+                    if (!IsSystemFile(file.FullName))
+                    {
+                        file.Delete();
+                        LogMessage($"已删除文件：{file.Name}");
+                    }
+                }
+                catch (IOException ex)
+                {
+                    LogMessage($"无法删除文件 {file.Name}，因为它正在被其他进程使用：{ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    LogMessage($"删除文件 {file.Name} 时出错：{ex.Message}");
                 }
             }
             
             // 删除文件夹
             foreach (DirectoryInfo dir in desktopDir.GetDirectories())
             {
-                // 跳过系统文件夹
-                if (!IsSystemFolder(dir.FullName))
+                try
                 {
-                    dir.Delete(true);
-                    LogMessage($"已删除文件夹：{dir.Name}");
+                    // 跳过系统文件夹
+                    if (!IsSystemFolder(dir.FullName))
+                    {
+                        dir.Delete(true);
+                        LogMessage($"已删除文件夹：{dir.Name}");
+                    }
+                }
+                catch (IOException ex)
+                {
+                    LogMessage($"无法删除文件夹 {dir.Name}，因为它正在被其他进程使用：{ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    LogMessage($"删除文件夹 {dir.Name} 时出错：{ex.Message}");
                 }
             }
         }
