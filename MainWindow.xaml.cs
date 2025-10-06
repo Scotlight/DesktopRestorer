@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms; // FolderBrowserDialog
@@ -313,7 +314,7 @@ private NotifyIcon? _notifyIcon;
              {
                  try
                  {
-                     File.Delete(file);
+                     DeleteFileWithRetry(file);
                      LogMessage($"已删除文件：{Path.GetFileName(file)}");
                  }
                  catch (Exception ex)
@@ -327,7 +328,7 @@ private NotifyIcon? _notifyIcon;
              {
                  try
                  {
-                     Directory.Delete(dir, true);
+                     DeleteDirectoryWithRetry(dir);
                      LogMessage($"已删除文件夹：{new DirectoryInfo(dir).Name}");
                  }
                  catch (Exception ex)
@@ -339,6 +340,227 @@ private NotifyIcon? _notifyIcon;
          catch (Exception ex)
          {
              LogMessage($"清理文件夹 {folderPath} 时出错：{ex.Message}");
+         }
+     }
+
+     private void DeleteFileWithRetry(string filePath, int maxRetries = 3)
+     {
+         string fileName = Path.GetFileName(filePath);
+         string extension = Path.GetExtension(filePath).ToLower();
+         
+         // 对于 DLL 文件，增加重试次数和等待时间
+         if (extension == ".dll")
+         {
+             maxRetries = 5;
+             LogMessage($"检测到 DLL 文件 {fileName}，使用增强删除策略");
+         }
+         
+         for (int i = 0; i < maxRetries; i++)
+         {
+             try
+             {
+                 // 尝试移除只读属性
+                 if (File.Exists(filePath))
+                 {
+                     FileAttributes attributes = File.GetAttributes(filePath);
+                     if ((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+                     {
+                         File.SetAttributes(filePath, attributes & ~FileAttributes.ReadOnly);
+                     }
+                 }
+
+                 File.Delete(filePath);
+                 return; // 成功删除，退出重试循环
+             }
+             catch (UnauthorizedAccessException)
+             {
+                 LogMessage($"文件 {fileName} 访问被拒绝，尝试解锁...");
+                 
+                 // 尝试解锁文件
+                 if (TryUnlockFile(filePath))
+                 {
+                     continue; // 解锁成功，重试删除
+                 }
+                 
+                 if (i == maxRetries - 1)
+                 {
+                     LogMessage($"文件 {fileName} 无法删除，可能正在被其他程序使用");
+                     
+                     // 对于 DLL 文件，提供更详细的错误信息
+                     if (extension == ".dll")
+                     {
+                         LogMessage($"提示：DLL 文件 {fileName} 可能正在被其他程序加载，请关闭相关程序后重试");
+                     }
+                     
+                     // 记录可能使用文件的进程类型
+                     LogProcessUsingFile(filePath);
+                     throw;
+                 }
+                 
+                 // 等待一段时间后重试，DLL 文件等待更长时间
+                 int waitTime = extension == ".dll" ? 1000 : 500;
+                 System.Threading.Thread.Sleep(waitTime);
+             }
+             catch (IOException ex)
+             {
+                 if (i == maxRetries - 1)
+                 {
+                     LogMessage($"文件 {fileName} 无法删除：{ex.Message}");
+                     throw;
+                 }
+                 
+                 // 等待一段时间后重试，DLL 文件等待更长时间
+                 int waitTime = extension == ".dll" ? 1000 : 500;
+                 System.Threading.Thread.Sleep(waitTime);
+             }
+         }
+     }
+
+     private void DeleteDirectoryWithRetry(string dirPath, int maxRetries = 3)
+     {
+         string dirName = new DirectoryInfo(dirPath).Name;
+         
+         for (int i = 0; i < maxRetries; i++)
+         {
+             try
+             {
+                 // 尝试使用长路径名支持
+                 string longPath = dirPath;
+                 if (dirPath.Length > 260 && !dirPath.StartsWith(@"\\?\"))
+                 {
+                     longPath = @"\\?\" + dirPath;
+                 }
+                 
+                 Directory.Delete(longPath, true);
+                 LogMessage($"已删除文件夹：{dirName}");
+                 return; // 成功删除，退出重试循环
+             }
+             catch (UnauthorizedAccessException)
+             {
+                 LogMessage($"文件夹 {dirName} 访问被拒绝，尝试强制删除...");
+                 
+                 // 尝试强制删除文件夹内容
+                 if (TryForceDeleteDirectory(dirPath))
+                 {
+                     LogMessage($"已强制删除文件夹：{dirName}");
+                     return;
+                 }
+                 
+                 if (i == maxRetries - 1)
+                 {
+                     LogMessage($"文件夹 {dirName} 无法删除，可能正在被其他程序使用");
+                     LogMessage($"提示：请关闭可能使用该文件夹的程序，或重启计算机后重试");
+                     throw;
+                 }
+                 
+                 // 等待一段时间后重试
+                 System.Threading.Thread.Sleep(1000);
+             }
+             catch (IOException ex)
+             {
+                 if (i == maxRetries - 1)
+                 {
+                     LogMessage($"文件夹 {dirName} 无法删除：{ex.Message}");
+                     
+                     // 检查是否是长路径名问题
+                     if (ex.Message.Contains("\\?\\"))
+                     {
+                         LogMessage($"提示：检测到长路径名问题，尝试使用替代方法删除");
+                         if (TryForceDeleteDirectory(dirPath))
+                         {
+                             LogMessage($"已使用替代方法删除文件夹：{dirName}");
+                             return;
+                         }
+                     }
+                     throw;
+                 }
+                 
+                 // 等待一段时间后重试
+                 System.Threading.Thread.Sleep(1000);
+             }
+         }
+     }
+
+     private bool TryForceDeleteDirectory(string dirPath)
+     {
+         try
+         {
+             // 递归删除文件夹内容
+             if (Directory.Exists(dirPath))
+             {
+                 // 删除所有文件
+                 foreach (string file in Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories))
+                 {
+                     try
+                     {
+                         DeleteFileWithRetry(file);
+                     }
+                     catch
+                     {
+                         // 忽略单个文件删除失败
+                     }
+                 }
+                 
+                 // 删除所有子文件夹
+                 foreach (string subDir in Directory.GetDirectories(dirPath, "*", SearchOption.AllDirectories).OrderByDescending(d => d.Length))
+                 {
+                     try
+                     {
+                         Directory.Delete(subDir, false);
+                     }
+                     catch
+                     {
+                         // 忽略单个文件夹删除失败
+                     }
+                 }
+                 
+                 // 最后删除主文件夹
+                 Directory.Delete(dirPath, false);
+                 return true;
+             }
+         }
+         catch
+         {
+             // 强制删除失败
+         }
+         return false;
+     }
+
+     private bool TryUnlockFile(string filePath)
+     {
+         try
+         {
+             // 尝试以独占方式打开文件，然后立即关闭，这样可以解锁文件
+             using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+             {
+                 // 文件已解锁
+                 return true;
+             }
+         }
+         catch
+         {
+             // 无法解锁文件
+             return false;
+         }
+     }
+
+     private void LogProcessUsingFile(string filePath)
+     {
+         try
+         {
+             // 尝试使用 handle.exe 或类似工具来查找使用文件的进程
+             // 这里提供一个简化的提示
+             string fileName = Path.GetFileName(filePath);
+             LogMessage($"提示：文件 {fileName} 可能正在被以下类型的程序使用：");
+             LogMessage($"  - 文件管理器（如资源管理器）");
+             LogMessage($"  - 文本编辑器或代码编辑器");
+             LogMessage($"  - 杀毒软件或安全工具");
+             LogMessage($"  - 系统服务或后台程序");
+             LogMessage($"建议：关闭相关程序后重试，或重启计算机");
+         }
+         catch
+         {
+             // 忽略日志记录错误
          }
      }
 
@@ -634,13 +856,9 @@ private NotifyIcon? _notifyIcon;
                     // 跳过系统文件和快捷方式
                     if (!IsSystemFile(file.FullName))
                     {
-                        file.Delete();
+                        DeleteFileWithRetry(file.FullName);
                         LogMessage($"已删除文件：{file.Name}");
                     }
-                }
-                catch (IOException ex)
-                {
-                    LogMessage($"无法删除文件 {file.Name}，因为它正在被其他进程使用：{ex.Message}");
                 }
                 catch (Exception ex)
                 {
@@ -656,13 +874,9 @@ private NotifyIcon? _notifyIcon;
                     // 跳过系统文件夹
                     if (!IsSystemFolder(dir.FullName))
                     {
-                        dir.Delete(true);
+                        DeleteDirectoryWithRetry(dir.FullName);
                         LogMessage($"已删除文件夹：{dir.Name}");
                     }
-                }
-                catch (IOException ex)
-                {
-                    LogMessage($"无法删除文件夹 {dir.Name}，因为它正在被其他进程使用：{ex.Message}");
                 }
                 catch (Exception ex)
                 {
@@ -673,6 +887,7 @@ private NotifyIcon? _notifyIcon;
         catch (Exception ex)
         {
             LogMessage($"清理桌面时出错：{ex.Message}");
+            // 重新抛出异常，或者根据需要处理
             throw;
         }
     }
@@ -690,6 +905,10 @@ private NotifyIcon? _notifyIcon;
             
             // 检查是否为desktop.ini
             if (fileName == "desktop.ini")
+                return true;
+            
+            // 检查是否为注册表文件 - 这些文件应该被保留
+            if (extension == ".reg")
                 return true;
                 
             // 检查是否为快捷方式
@@ -713,13 +932,13 @@ private NotifyIcon? _notifyIcon;
                         return true;
                 }
             }
-            
+
             return false;
         }
         catch (Exception ex)
         {
-            LogMessage($"检查系统文件时出错：{ex.Message}");
-            return false; // 出错时保守处理，不删除
+            LogMessage($"检查文件 {filePath} 是否为系统文件时出错：{ex.Message}");
+            return false;
         }
     }
 
