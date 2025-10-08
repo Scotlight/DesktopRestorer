@@ -15,7 +15,7 @@ SetupIconFile=D:\0010\else\shutdown\p578a-xndte-001.ico
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\0010\else\shutdown\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\0010\else\shutdown\publish\net8.0\DesktopRestorer.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\DesktopRestorer"; Filename: "{app}\DesktopRestorer.exe"

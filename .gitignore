@@ -27,6 +27,8 @@ DesktopRestorerSetup.exe
 *.DotSettings.user
 .idea/
 .vs/
+.vscode/
+.specstory/
 
 # Logs & temp
 *.log
