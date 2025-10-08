@@ -2,18 +2,32 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <TargetFrameworks>net8.0-windows;net472</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net472'">
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <Resource Include="p578a-xndte-001.ico">
       <Link>p578a-xndte-001.ico</Link>
     </Resource>
+    <Resource Include="appicon.svg" />
+    <Resource Include="icons\computer.svg" />
+    <Resource Include="icons\recycle-bin.svg" />
+    <Resource Include="icons\control-panel.svg" />
+    <Resource Include="icons\network.svg" />
+    <Resource Include="icons\user-folder.svg" />
+    <Resource Include="icons\documents.svg" />
   </ItemGroup>
   
 
