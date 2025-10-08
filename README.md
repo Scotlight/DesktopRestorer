@@ -9,7 +9,7 @@ DesktopRestorer 是一个简单实用的桌面备份和恢复工具，帮助您�
 | 下图展示了 DesktopRestorer 的主界面。您可以在其中设置源文件夹（文件夹 A）、目标文件夹（桌面）、启动选项以及自动备份间隔等。下方的操作按钮用于立即备份与恢复桌面，底部的日志框会实时显示应用操作记录。 | The following screenshot shows the main UI of DesktopRestorer. You can configure the source folder (Folder A), target folder (Desktop), startup options, and automatic backup interval. The buttons below trigger immediate backup or desktop restore, and the log box at the bottom displays real-time operation logs. |
 
 
-![DesktopRestorer UI](docs/screenshot.png)
+![DesktopRestorer UI](docs/2025-10-08_18-00-15.png)
 
 ## 功能特点
 
@@ -19,22 +19,28 @@ DesktopRestorer 是一个简单实用的桌面备份和恢复工具，帮助您�
 - 系统托盘支持，最小化不打扰
 - 简洁直观的用户界面
 
+## 版本与下载
+
+- 最新发布（含 ZIP 与安装包）：https://github.com/Scotlight/DesktopRestorer/releases/tag/v1.1.0
+- 构建区别：
+  - Windows 7/8 兼容版（ZIP，net472）：解压后运行 `DesktopRestorer.exe`。
+  - Windows 10/11 安装版（setup.exe，net8.0）：使用安装程序安装，开始菜单/桌面快捷方式启动。
+
 
 ## 安装说明
 
-### 方法一：直接运行可执行文件
+### 方法一：Windows 7/8（ZIP，net472）
 
-1. 下载 `DesktopRestorer.exe` 文件
-2. 双击运行程序
-3. 需要 .NET 8.0 Desktop Runtime 支持
+1. 前往发布页下载 `DesktopRestorer_win7.zip`
+2. 解压后双击运行 `DesktopRestorer.exe`
+3. 如未安装 .NET Framework 4.7.2，请先安装（微软官方提供下载）
 
-### 方法二：使用安装程序
+### 方法二：Windows 10/11（安装版，net8.0）
 
-1. 安装脚本位于 `installer/DesktopRestorer.iss`
-2. 打开 Inno Setup 编译器加载该脚本并编译
-3. 生成的安装包 `DesktopRestorerSetup.exe` 可在编译输出目录中找到
-4. 双击运行安装程序，按照向导完成安装
-5. 从开始菜单或桌面快捷方式启动
+1. 前往发布页下载并运行 `DesktopRestorerSetup.exe`
+2. 按照向导完成安装
+3. 从开始菜单或桌面快捷方式启动
+4. 开发者构建说明：安装脚本位于 `installer/DesktopRestorer.iss`，可使用 Inno Setup 编译器重新生成安装包
 
 ## 使用方法
 
@@ -66,8 +72,8 @@ DesktopRestorer 是一个简单实用的桌面备份和恢复工具，帮助您�
 
 ## 系统要求
 
-- Windows 10/11
-- .NET 8.0 Desktop Runtime
+- Windows 7/8：需要 .NET Framework 4.7.2
+- Windows 10/11：无需安装 .NET 运行时（安装版为自包含构建）
 
 ## 注意事项
 
