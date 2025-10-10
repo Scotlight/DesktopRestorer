@@ -9,7 +9,7 @@ DesktopRestorer 是一个简单实用的桌面备份和恢复工具，帮助您�
 | 下图展示了 DesktopRestorer 的主界面。您可以在其中设置源文件夹（文件夹 A）、目标文件夹（桌面）、启动选项以及自动备份间隔等。下方的操作按钮用于立即备份与恢复桌面，底部的日志框会实时显示应用操作记录。 | The following screenshot shows the main UI of DesktopRestorer. You can configure the source folder (Folder A), target folder (Desktop), startup options, and automatic backup interval. The buttons below trigger immediate backup or desktop restore, and the log box at the bottom displays real-time operation logs. |
 
 
-![DesktopRestorer UI](docs/2025-10-08_18-00-15.png)
+![DesktopRestorer UI](docs/Snipaste_2025-10-10_21-07-35.png)
 
 ## 功能特点
 
